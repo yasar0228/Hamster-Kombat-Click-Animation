@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamster Kombat Click Animation</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #111;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            
+            -webkit-touch-callout:none;
+            -webkit-user-select:none;
+            -khtml-user-select:none;
+            -moz-user-select:none;
+            -ms-user-select:none;
+            user-select:none;
+            -webkit-tap-highlight-color:rgba(0,0,0,0);
+        }
+     
+        img {
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .game-container {
+            text-align: center;
+            position: relative;
+        }
+
+        .scoreboard {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #fbc531;
+        }
+
+        .hamster-border {
+            position: relative;
+            width: 230px;
+            height: 230px;
+            margin: 0px auto;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 15px;
+            /* background: radial-gradient(circle, rgb(38 35 35 / 68%), rgb(51 78 155 / 90%)); */
+            background: linear-gradient(to bottom,rgb(51, 78, 155, 0.90), rgb(38, 35, 35, 0.68));
+        }
+
+        .hamster-area {
+            position: relative;
+            width: 230px;
+            height: 230px;
+            margin: 0 auto;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 0px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.9));
+        }
+
+        .hamster-img {
+            width: 75px;
+            height: auto;
+            display: block;
+            padding-top: 50px;
+        }
+
+        .point {
+            position: absolute;
+            font-size: 24px;
+            color: #fff;
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .flying-point {
+            opacity: 1;
+            animation: point-fly 1s forwards;
+        }
+
+        @keyframes point-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(calc(var(--scoreboard-x) - var(--click-x)), calc(var(--scoreboard-y) - var(--click-y))) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .hitting {
+            animation: hamster-hit 0.2s forwards;
+        }
+
+        @keyframes hamster-hit {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="scoreboard" id="scoreboard">
+            <div>Total Balance: <span id="total-balance">0</span></div>
+        </div>
+        <div class="hamster-border">
+            <div class="hamster-area" id="hamster">
+                <center>
+                    <img src="hamster.png" alt="Hamster" class="hamster-img">
+                </center>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalBalance = 0;
+
+        document.getElementById("hamster").addEventListener("click", function (event) {
+            const hamster = this.querySelector(".hamster-img");
+            const scoreboard = document.getElementById("scoreboard");
+
+            // Add 1 point to the total balance
+            totalBalance += 1;
+            updateBalanceDisplay();
+
+            // Get the click position
+            const clickX = event.clientX;
+            const clickY = event.clientY;
+
+            // Get the scoreboard position
+            const scoreboardRect = scoreboard.getBoundingClientRect();
+            const scoreboardX = scoreboardRect.left + scoreboardRect.width / 2;
+            const scoreboardY = scoreboardRect.top;
+
+            // Create a new point element for each click
+            const point = document.createElement('div');
+            point.classList.add('point', 'flying-point');
+            point.textContent = '+1';
+            document.body.appendChild(point);
+
+            // Set the point's starting position at the click position
+            point.style.left = `${clickX}px`;
+            point.style.top = `${clickY}px`;
+
+            // Set custom properties for the animation
+            point.style.setProperty('--click-x', `${clickX}px`);
+            point.style.setProperty('--click-y', `${clickY}px`);
+            point.style.setProperty('--scoreboard-x', `${scoreboardX}px`);
+            point.style.setProperty('--scoreboard-y', `${scoreboardY}px`);
+
+            // Remove the point element after the animation completes
+            point.addEventListener('animationend', function () {
+                point.remove();
+            });
+
+            // Hamster vibration animation
+            hamster.classList.add("hitting");
+            hamster.addEventListener("animationend", function () {
+                hamster.classList.remove("hitting");
+            });
+
+            // vibrate device
+            window.navigator.vibrate([5]);
+        });
+
+        function updateBalanceDisplay() {
+            document.getElementById("total-balance").textContent = totalBalance.toLocaleString();
+        }
+    </script>
+</body>
+
+</html>
